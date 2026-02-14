@@ -87,10 +87,10 @@ function! s:jump_chunk(down, move) abort
     endif
 endfunction
 
-nnoremap <buffer> <c-j> :<c-u>call <SID>jump_chunk(1, 0)<cr>
-nnoremap <buffer> <c-k> :<c-u>call <SID>jump_chunk(0, 0)<cr>
-xnoremap <buffer> <c-j> :<c-u>call <SID>jump_chunk(1, 1)<cr>
-xnoremap <buffer> <c-k> :<c-u>call <SID>jump_chunk(0, 1)<cr>
+nnoremap <buffer><silent> <c-j> :<c-u>call <SID>jump_chunk(1, 0)<cr>
+nnoremap <buffer><silent> <c-k> :<c-u>call <SID>jump_chunk(0, 0)<cr>
+xnoremap <buffer><silent> <c-j> :<c-u>call <SID>jump_chunk(1, 1)<cr>
+xnoremap <buffer><silent> <c-k> :<c-u>call <SID>jump_chunk(0, 1)<cr>
 
 let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext<'
             \ . '| delc -buffer TodolistInit'

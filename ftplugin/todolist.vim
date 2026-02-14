@@ -31,15 +31,18 @@ setlocal foldmethod=expr
 setlocal foldexpr=GetTodolistFold()
 setlocal foldtext=GetTodolistFoldText()
 
-let s:todo = '# 待办事项'
-let s:pend = '# 等待事项'
 let s:wait = '# 长期待办'
+let s:pend = '# 等待事项'
+let s:todo = '# 待办事项'
+let s:finish_chunk = "完成事项"
 let s:prefix_pattern = '\v^[+-] =\zs%(%(create|pending|finish)\([^)]*\) =)*'
+let s:chunk_pattern = $'^\V\%({s:todo}\|{s:pend}\|{s:wait}\)'
 
 com! -buffer TodolistInit call append(0, [
-            \ s:wait, repeat('=', 78), '',
-            \ s:pend, repeat('=', 78), '',
-            \ s:todo, repeat('=', 78), '',
+            \ s:finish_chunk,   repeat('=', 78), '',
+            \ s:wait,           repeat('=', 78), '',
+            \ s:pend,           repeat('=', 78), '',
+            \ s:todo,           repeat('=', 78), '',
             \])
 
 function! s:date()
@@ -61,18 +64,22 @@ function! s:del_item()
 endfunction
 
 function! s:jump_chunk(down, move) abort
-    let chunk_pattern = $'^\V\%({s:todo}\|{s:pend}\|{s:wait}\)'
     let back = a:down ? "" : "b"
 
     if a:move
         call s:del_item()
     endif
 
-    call search(chunk_pattern, 'ws'.back)
+    let first = search(s:chunk_pattern, 'ws'.back)
     norm!j
-    call search(chunk_pattern, 'w'.back)
-    exe 'norm!' prevnonblank(line('.')-1).'G'
-    let chunk = trim(getline(search(chunk_pattern, 'nwb')))
+    let next = search(s:chunk_pattern, 'w'.back)
+    if next < first || !a:down && trim(getline(next)) == s:wait
+        norm!G
+    else
+        norm!k
+    endif
+    exe 'norm!' prevnonblank(line('.')).'G'
+    let chunk = trim(getline(search(s:chunk_pattern, 'nwb')))
 
     if a:move
         norm!p
@@ -87,6 +94,21 @@ function! s:jump_chunk(down, move) abort
     endif
 endfunction
 
+function! s:finish_item() abort
+    call s:del_item()
+    norm!gg
+    call search(s:chunk_pattern, 'Wc')
+    exe 'norm!' prevnonblank(line('.')-1).'G'
+    norm!p
+
+    let item = getline('.')
+    let prefix = matchend(item, s:prefix_pattern)
+    if prefix != -1
+        call setline(line('.'), item[:prefix-1].$'finish({s:date()}) '.item[prefix:])
+    endif
+endfunction
+
+nnoremap <buffer><silent> K     :<c-u>call <SID>finish_item()<cr>
 nnoremap <buffer><silent> <c-j> :<c-u>call <SID>jump_chunk(1, 0)<cr>
 nnoremap <buffer><silent> <c-k> :<c-u>call <SID>jump_chunk(0, 0)<cr>
 xnoremap <buffer><silent> <c-j> :<c-u>call <SID>jump_chunk(1, 1)<cr>
@@ -94,6 +116,7 @@ xnoremap <buffer><silent> <c-k> :<c-u>call <SID>jump_chunk(0, 1)<cr>
 
 let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext<'
             \ . '| delc -buffer TodolistInit'
+            \ . '| nunmap <buffer> K'
             \ . '| nunmap <buffer> <c-j>'
             \ . '| nunmap <buffer> <c-k>'
             \ . '| xunmap <buffer> <c-j>'

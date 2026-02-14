@@ -30,4 +30,15 @@ setlocal foldmethod=expr
 setlocal foldexpr=GetTodolistFold()
 setlocal foldtext=GetTodolistFoldText()
 
+let s:todo = '# 待办事项'
+let s:pend = '# 等待事项'
+let s:wait = '# 长期待办'
+
+com! -buffer TodolistInit call append(0, [
+            \ s:wait, repeat('=', 78), '',
+            \ s:pend, repeat('=', 78), '',
+            \ s:todo, repeat('=', 78), '',
+            \])
+
 let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext<'
+            \ . '| delc -buffer TodolistInit'

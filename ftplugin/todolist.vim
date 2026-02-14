@@ -113,6 +113,8 @@ nnoremap <buffer><silent> <c-j> :<c-u>call <SID>jump_chunk(1, 0)<cr>
 nnoremap <buffer><silent> <c-k> :<c-u>call <SID>jump_chunk(0, 0)<cr>
 xnoremap <buffer><silent> <c-j> :<c-u>call <SID>jump_chunk(1, 1)<cr>
 xnoremap <buffer><silent> <c-k> :<c-u>call <SID>jump_chunk(0, 1)<cr>
+inoremap <buffer><silent><expr> - "-".(col('.') != 1 ? "" : " create(".<SID>date().") ")
+inoremap <buffer><silent><expr> + "+".(col('.') != 1 ? "" : " create(".<SID>date().") ")
 
 let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext<'
             \ . '| delc -buffer TodolistInit'
@@ -121,3 +123,5 @@ let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext<'
             \ . '| nunmap <buffer> <c-k>'
             \ . '| xunmap <buffer> <c-j>'
             \ . '| xunmap <buffer> <c-k>'
+            \ . '| iunmap <buffer> -'
+            \ . '| iunmap <buffer> +'

@@ -40,5 +40,43 @@ com! -buffer TodolistInit call append(0, [
             \ s:todo, repeat('=', 78), '',
             \])
 
+function! s:jump_chunk(down, move) abort
+    let chunk_pattern = $'^\V\%({s:todo}\|{s:pend}\|{s:wait}\)'
+    let back = a:down ? "" : "b"
+
+    if a:move
+        let item = line('.')
+        while item > 1 && getline(item) !~ '^[+-] '
+            let item -= 1
+        endwhile
+        let item_to = item
+        while nextnonblank(item_to+1) <= line('$')
+                    \&& nextnonblank(item_to+1) != 0
+                    \&& getline(nextnonblank(item_to+1)) !~ '^\S'
+            let item_to += 1
+        endwhile
+        exe $'norm!{item}Gd{item_to}G'
+    endif
+
+    call search(chunk_pattern, 'ws'.back)
+    let chunk = trim(getline('.'))
+    norm!j
+    call search(chunk_pattern, 'w'.back)
+    exe 'norm!' prevnonblank(line('.')-1).'G'
+
+    if a:move
+        norm!p
+    endif
+endfunction
+
+nnoremap <buffer> <c-j> :<c-u>call <SID>jump_chunk(1, 0)<cr>
+nnoremap <buffer> <c-k> :<c-u>call <SID>jump_chunk(0, 0)<cr>
+xnoremap <buffer> <c-j> :<c-u>call <SID>jump_chunk(1, 1)<cr>
+xnoremap <buffer> <c-k> :<c-u>call <SID>jump_chunk(0, 1)<cr>
+
 let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext<'
             \ . '| delc -buffer TodolistInit'
+            \ . '| nunmap <buffer> <c-j>'
+            \ . '| nunmap <buffer> <c-k>'
+            \ . '| xunmap <buffer> <c-j>'
+            \ . '| xunmap <buffer> <c-k>'

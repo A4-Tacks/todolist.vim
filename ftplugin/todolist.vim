@@ -30,6 +30,7 @@ setlocal shiftwidth=2
 setlocal foldmethod=expr
 setlocal foldexpr=GetTodolistFold()
 setlocal foldtext=GetTodolistFoldText()
+setlocal iskeyword+=-
 
 let s:wait = '# 长期待办'
 let s:pend = '# 等待事项'
@@ -116,7 +117,7 @@ xnoremap <buffer><silent> <c-k> :<c-u>call <SID>jump_chunk(0, 1)<cr>
 inoremap <buffer><silent><expr> - "-".(col('.') != 1 ? "" : " create(".<SID>date().") ")
 inoremap <buffer><silent><expr> + "+".(col('.') != 1 ? "" : " create(".<SID>date().") ")
 
-let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext<'
+let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext< iskeyword<'
             \ . '| delc -buffer TodolistInit'
             \ . '| nunmap <buffer> K'
             \ . '| nunmap <buffer> <c-j>'

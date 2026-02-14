@@ -20,6 +20,7 @@ function! GetTodolistFold() "{{{1
 endfunction " }}}1
 function! GetTodolistFoldText() "{{{1
     let line = getline(v:foldstart)
+    let line = substitute(line, s:prefix_pattern, "", "")
     let end = &colorcolumn ? &colorcolumn : 79
     let width = strdisplaywidth(line)
     return line . repeat(" ", end-width) . "@" . (v:foldend-v:foldstart+1)
@@ -33,6 +34,7 @@ setlocal foldtext=GetTodolistFoldText()
 let s:todo = '# 待办事项'
 let s:pend = '# 等待事项'
 let s:wait = '# 长期待办'
+let s:prefix_pattern = '\v^[+-] =\zs%(%(create|pending|finish)\([^)]*\) =)*'
 
 com! -buffer TodolistInit call append(0, [
             \ s:wait, repeat('=', 78), '',
@@ -40,32 +42,48 @@ com! -buffer TodolistInit call append(0, [
             \ s:todo, repeat('=', 78), '',
             \])
 
+function! s:date()
+    return strftime('%Y-%m-%d %H:%M', localtime())
+endfunction
+
+function! s:del_item()
+    let item = line('.')
+    while item > 1 && getline(item) !~ '^[+-] '
+        let item -= 1
+    endwhile
+    let item_to = item
+    while nextnonblank(item_to+1) <= line('$')
+                \&& nextnonblank(item_to+1) != 0
+                \&& getline(nextnonblank(item_to+1)) !~ '^\S'
+        let item_to += 1
+    endwhile
+    exe $'norm!{item}Gd{item_to}G'
+endfunction
+
 function! s:jump_chunk(down, move) abort
     let chunk_pattern = $'^\V\%({s:todo}\|{s:pend}\|{s:wait}\)'
     let back = a:down ? "" : "b"
 
     if a:move
-        let item = line('.')
-        while item > 1 && getline(item) !~ '^[+-] '
-            let item -= 1
-        endwhile
-        let item_to = item
-        while nextnonblank(item_to+1) <= line('$')
-                    \&& nextnonblank(item_to+1) != 0
-                    \&& getline(nextnonblank(item_to+1)) !~ '^\S'
-            let item_to += 1
-        endwhile
-        exe $'norm!{item}Gd{item_to}G'
+        call s:del_item()
     endif
 
     call search(chunk_pattern, 'ws'.back)
-    let chunk = trim(getline('.'))
     norm!j
     call search(chunk_pattern, 'w'.back)
     exe 'norm!' prevnonblank(line('.')-1).'G'
+    let chunk = trim(getline(search(chunk_pattern, 'nwb')))
 
     if a:move
         norm!p
+    endif
+
+    let item = getline('.')
+    let prefix = matchend(item, s:prefix_pattern)
+    if prefix != -1
+        if chunk == s:pend
+            call setline(line('.'), item[:prefix-1].$'pending({s:date()}) '.item[prefix:])
+        endif
     endif
 endfunction
 

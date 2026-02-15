@@ -118,7 +118,7 @@ inoremap <buffer><silent><expr> - "-".(col('.') != 1 ? "" : " create(".<SID>date
 inoremap <buffer><silent><expr> + "+".(col('.') != 1 ? "" : " create(".<SID>date().") ")
 
 aug todolistPlugin
-    autocmd CursorMoved *
+    autocmd CursorMoved <buffer>
                 \ while synconcealed(line('.'), col('.'))[0]
                 \ | exe 'norm!l'
                 \ | endwhile

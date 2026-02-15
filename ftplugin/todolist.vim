@@ -84,13 +84,13 @@ function! s:jump_chunk(down, move) abort
 
     if a:move
         norm!p
-    endif
 
-    let item = getline('.')
-    let prefix = matchend(item, s:prefix_pattern)
-    if prefix != -1
-        if chunk == s:pend
-            call setline(line('.'), item[:prefix-1].$'pending({s:date()}) '.item[prefix:])
+        let item = getline('.')
+        let prefix = matchend(item, s:prefix_pattern)
+        if prefix != -1
+            if chunk == s:pend
+                call setline(line('.'), item[:prefix-1].$'pending({s:date()}) '.item[prefix:])
+            endif
         endif
     endif
 endfunction

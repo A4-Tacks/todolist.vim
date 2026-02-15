@@ -117,6 +117,13 @@ xnoremap <buffer><silent> <c-k> :<c-u>call <SID>jump_chunk(0, 1)<cr>
 inoremap <buffer><silent><expr> - "-".(col('.') != 1 ? "" : " create(".<SID>date().") ")
 inoremap <buffer><silent><expr> + "+".(col('.') != 1 ? "" : " create(".<SID>date().") ")
 
+aug todolistPlugin
+    autocmd CursorMoved *
+                \ while synconcealed(line('.'), col('.'))[0]
+                \ | exe 'norm!l'
+                \ | endwhile
+aug end
+
 let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext< iskeyword<'
             \ . '| delc -buffer TodolistInit'
             \ . '| nunmap <buffer> K'
@@ -126,3 +133,4 @@ let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext< iske
             \ . '| xunmap <buffer> <c-k>'
             \ . '| iunmap <buffer> -'
             \ . '| iunmap <buffer> +'
+            \ . '| aug todolistPlugin | au! | aug end'

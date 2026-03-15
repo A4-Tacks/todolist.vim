@@ -31,6 +31,7 @@ setlocal foldmethod=expr
 setlocal foldexpr=GetTodolistFold()
 setlocal foldtext=GetTodolistFoldText()
 setlocal iskeyword+=-
+setlocal concealcursor=nic
 
 let s:wait = '# 长期待办'
 let s:pend = '# 等待事项'
@@ -124,7 +125,7 @@ aug todolistPlugin
                 \ | endwhile
 aug end
 
-let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext< iskeyword<'
+let b:undo_ftplugin = 'setlocal shiftwidth< foldmethod< foldexpr< foldtext< iskeyword< concealcursor<'
             \ . '| delc -buffer TodolistInit'
             \ . '| nunmap <buffer> K'
             \ . '| nunmap <buffer> <c-j>'

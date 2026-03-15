@@ -120,7 +120,7 @@ inoremap <buffer><silent><expr> + "+".(col('.') != 1 ? "" : " create(".<SID>date
 
 aug todolistPlugin
     autocmd CursorMoved <buffer>
-                \ while synconcealed(line('.'), col('.'))[0] && col('.')+1 < col('$')
+                \ while mode() !~? '^v' && synconcealed(line('.'), col('.'))[0] && col('.')+1 < col('$')
                 \ | exe 'norm!l'
                 \ | endwhile
 aug end

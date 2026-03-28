@@ -73,14 +73,14 @@ function! s:jump_chunk(down, move) abort
     endif
 
     let first = search(s:chunk_pattern, 'ws'.back)
-    norm!j
+    keepjumps norm!j
     let next = search(s:chunk_pattern, 'w'.back)
     if next < first || !a:down && trim(getline(next)) == s:wait
-        norm!G
+        keepjumps norm!G
     else
-        norm!k
+        keepjumps norm!k
     endif
-    exe 'norm!' prevnonblank(line('.')).'G'
+    exe 'keepjumps norm!' prevnonblank(line('.')).'G'
     let chunk = trim(getline(search(s:chunk_pattern, 'nwb')))
 
     if a:move
@@ -100,7 +100,7 @@ function! s:finish_item() abort
     call s:del_item()
     norm!gg
     call search(s:chunk_pattern, 'Wc')
-    exe 'norm!' prevnonblank(line('.')-1).'G'
+    exe 'keepjumps norm!' prevnonblank(line('.')-1).'G'
     norm!p
 
     let item = getline('.')
